@@ -1,14 +1,11 @@
 package com.capitalone.twitterbot;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.social.twitter.api.FilterStreamParameters;
-import org.springframework.social.twitter.api.Stream;
 import org.springframework.social.twitter.api.StreamListener;
 import org.springframework.social.twitter.api.Twitter;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,17 +24,20 @@ public class TwitterStreamController {
 	@Autowired
 	private StreamProcessing streamProcessing;
 	
+	@Autowired
+	SentimentAnalyzer sentimentAnalyzer;
+	
 	@PostConstruct
 	public void intialize(){
 		
 		//Streams by trackids for eg: ladygaga
-//		twitter.streamingOperations().filter("ladygaga", new ArrayList<StreamListener>(){
-//			private static final long serialVersionUID = 1L;
-//
-//			{
-//				add(streamProcessing);
-//			}
-//		});
+		twitter.streamingOperations().filter("lady gaga,katy perry", new ArrayList<StreamListener>(){
+			private static final long serialVersionUID = 1L;
+
+			{
+				add(streamProcessing);
+			}
+		});
 		
 		//Streams User Profile Activity.
 		twitter.streamingOperations().user( new ArrayList<StreamListener>(){
@@ -57,5 +57,11 @@ public class TwitterStreamController {
 	@PostMapping("/tweet/{tweet}")
 	public void tweet(@PathVariable String tweet){
 		twitter.timelineOperations().updateStatus(tweet);		
+	}
+
+	@PostMapping("/tweetsentiment/{tweet}")
+	public String tweetMood(@PathVariable String tweet){
+		String mood = sentimentAnalyzer.findSentiment(tweet);		
+		return "The sentiment of tweet:"+String.valueOf(mood);
 	}
 }

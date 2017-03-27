@@ -1,5 +1,6 @@
 package com.capitalone.twitterbot;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.twitter.api.StreamDeleteEvent;
 import org.springframework.social.twitter.api.StreamListener;
 import org.springframework.social.twitter.api.StreamWarningEvent;
@@ -8,10 +9,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StreamProcessing implements StreamListener{
+	
+	@Autowired
+	SentimentAnalyzer sentimentAnalyzer;
 
 	@Override
 	public void onTweet(Tweet tweet) {
 		System.out.println(tweet.getFromUser()+ ":"+tweet.getText());
+		System.out.println("The tweet has a sentiment:"+sentimentAnalyzer.findSentiment(tweet.getText()));
 		
 	}
 
@@ -19,6 +24,7 @@ public class StreamProcessing implements StreamListener{
 	public void onDelete(StreamDeleteEvent deleteEvent) {
 		// TODO Auto-generated method stub
 		System.out.println("User deleted:"+deleteEvent.getTweetId());
+		
 	}
 
 	@Override
